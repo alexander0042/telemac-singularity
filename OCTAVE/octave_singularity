@@ -1,0 +1,26 @@
+Bootstrap: docker
+From: gnuoctave/octave:8.2.0
+
+# Docker images to build GNU Octave <https://www.octave.org>.
+
+%labels
+    maintainer="Kai T. Ohlhus <k.ohlhus@gmail.com>"
+
+%environment
+    LAST_UPDATED=2023-06-01
+
+%post
+    # Install NetCDF
+    apt-get --yes update \
+    && DEBIAN_FRONTEND="noninteractive" apt-get --no-install-recommends --yes install \
+      libnetcdf-dev fonts-freefont-otf\
+    && apt-get --yes clean \
+    && apt-get --yes autoremove \
+    && rm -Rf /var/lib/apt/lists/*
+
+    octave --eval "pkg install -forge statistics"
+    octave --eval "pkg install -forge netcdf"
+
+%runscript
+    cd /workdir
+    exec octave-cli

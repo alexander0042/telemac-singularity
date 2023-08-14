@@ -1,0 +1,36 @@
+Bootstrap: docker
+From: ubuntu:jammy
+
+%post
+
+    # Install dependencies
+    apt update
+    apt install -y gnupg wget software-properties-common
+
+    # Import QGIS GPG key
+    wget -qO - https://qgis.org/downloads/qgis-2022.gpg.key | gpg --no-default-keyring --keyring gnupg-ring:/etc/apt/trusted.gpg.d/qgis-archive.gpg --import
+    chmod a+r /etc/apt/trusted.gpg.d/qgis-archive.gpg
+
+    # Add QGIS repository
+    add-apt-repository "deb https://qgis.org/ubuntu jammy main"
+
+    # Update and install QGIS and dependencies
+    apt update
+    DEBIAN_FRONTEND=noninteractive apt-get install -y qgis python3-qgis python3-qgis-common qgis-plugin-grass python3-pyqt5 PyQt5.QtOpenGL python3-pip
+
+	pip install pyopengl
+
+    # Clean up
+    apt-get clean
+
+%environment
+    export LD_LIBRARY_PATH=/usr/lib/qgis:${LD_LIBRARY_PATH}
+    export PYTHONPATH=/usr/share/qgis/python/:/usr/share/qgis/python/plugins:${PYTHONPATH}
+
+%runscript
+    qgis
+
+%labels
+    Author Alexander Rey
+    Version 1.0
+    Description QGIS container
